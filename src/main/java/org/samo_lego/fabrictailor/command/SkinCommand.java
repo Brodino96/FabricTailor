@@ -12,6 +12,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ServerPlayerGameMode;
+import net.minecraft.world.level.GameType;
 import org.samo_lego.fabrictailor.casts.TailoredPlayer;
 import org.samo_lego.fabrictailor.compatibility.TaterzenSkins;
 import org.samo_lego.fabrictailor.util.SkinFetcher;
@@ -36,6 +38,7 @@ public class SkinCommand {
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(literal("skin")
+                .requires(src -> src.hasPermission(2))
                 .then(literal("set")
                         .then(literal("URL")
                                 .then(literal("classic")
@@ -161,6 +164,10 @@ public class SkinCommand {
     }
 
     private static void setSkin(ServerPlayer player, Supplier<Property> skinProvider) {
+
+        GameType oldGameMode = player.gameMode.getGameModeForPlayer();
+        player.setGameMode(GameType.SPECTATOR);
+
         long lastChange = ((TailoredPlayer) player).getLastSkinChange();
         long now = System.currentTimeMillis();
 
@@ -188,6 +195,7 @@ public class SkinCommand {
                     false
             );
         }
+        player.setGameMode(oldGameMode);
 
     }
 
